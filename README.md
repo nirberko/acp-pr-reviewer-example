@@ -1,10 +1,10 @@
 # ACP PR Reviewer Example
 
-An example project demonstrating how to use [ACP (Agent Configuration Protocol)](https://github.com/acp-org/acp) to create an AI-powered pull request reviewer that automatically reviews code changes using GitHub Actions.
+An example project demonstrating how to use [ACP (Agent as a Code Protocol)](https://github.com/acp-org/acp) to create an AI-powered pull request reviewer that automatically reviews code changes using GitHub Actions.
 
 ## What is ACP?
 
-**ACP (Agent Configuration Protocol)** is an Infrastructure as Code approach for AI agents. Instead of writing imperative code to manage agent state, retries, and tool wiring, ACP lets you describe your AI agents declaratively using a native schema format.
+**ACP (Agent as a Code Protocol)** is an Infrastructure as Code approach for AI agents. Instead of writing imperative code to manage agent state, retries, and tool wiring, ACP lets you describe your AI agents declaratively using a native schema format.
 
 ACP provides:
 - **Native Schema**: Type-safe `.acp` format with explicit references
