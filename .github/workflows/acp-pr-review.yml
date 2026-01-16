@@ -1,7 +1,7 @@
-name: ACP PR Review
+name: PR Review
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize, reopened]
 
 permissions:
@@ -9,78 +9,26 @@ permissions:
   pull-requests: write
 
 jobs:
-  acp_review:
+  review:
+    name: AI PR Review
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout base (safe)
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.base.sha }}
+      - uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
-      - name: Install ACP CLI
+      - name: Install acp-cli
+        run: pip install acp-cli
+
+      - name: Run PR Review
+        working-directory: .acp
         run: |
-          python -m pip install --upgrade pip
-          pip install acp-cli
-
-      - name: Fetch PR diff (no checkout of PR code)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          pr_number="${{ github.event.pull_request.number }}"
-          repo="${{ github.repository }}"
-          curl -sSL \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github.v3.diff" \
-            "https://api.github.com/repos/${repo}/pulls/${pr_number}" \
-            > pr.diff
-
-      - name: Run ACP reviewer
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          TITLE: ${{ github.event.pull_request.title }}
-          BODY: ${{ github.event.pull_request.body }}
-        run: |
-          acp validate .acp/reviewer.acp
-          python - <<'PY'
-import json, os, subprocess
-
-title = os.environ.get("TITLE","")
-body  = os.environ.get("BODY","")
-
-# Read diff from file
-with open("pr.diff","r",encoding="utf-8",errors="replace") as f:
-    diff = f.read()
-
-inp = {"title": title, "body": body, "diff": diff}
-
-out = subprocess.check_output(
-  ["acp","run","review_pr","--spec",".acp/reviewer.acp","--input",json.dumps(inp)],
-  text=True
-)
-
-# Assume the CLI prints JSON or a text result; keep it simple:
-open("review.txt","w",encoding="utf-8").write(out)
-PY
-
-      - name: Install GitHub CLI
-        run: |
-          type -p curl >/dev/null || apt install curl -y
-          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-          chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-          apt update
-          apt install gh -y
-
-      - name: Post PR comment
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh auth setup-git
-          gh pr comment ${{ github.event.pull_request.number }} \
-            --repo ${{ github.repository }} \
-            --body-file review.txt
+          acp run review_pr \
+            --var openai_api_key=${{ secrets.OPENAI_API_KEY }} \
+            --var github_personal_access_token=${{ secrets.GITHUB_TOKEN }} \
+            --var owner=${{ github.repository_owner }} \
+            --var repo=${{ github.event.repository.name }} \
+            --var pr_number=${{ github.event.pull_request.number }}

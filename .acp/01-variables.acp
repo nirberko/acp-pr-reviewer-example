@@ -1,0 +1,28 @@
+// Variable definitions
+
+variable "openai_api_key" {
+  type        = string
+  description = "OpenAI API key"
+  sensitive   = true
+}
+
+variable "github_personal_access_token" {
+  type        = string
+  description = "GitHub Personal Access Token"
+  sensitive   = true
+}
+
+variable "owner" {
+  type        = string
+  description = "GitHub repository owner/organization"
+}
+
+variable "repo" {
+  type        = string
+  description = "GitHub repository name"
+}
+
+variable "pr_number" {
+  type        = number
+  description = "Pull request number to review"
+}
