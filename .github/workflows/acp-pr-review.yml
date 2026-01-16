@@ -21,7 +21,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install acp-cli
-        run: pip install acp-cli@0.0.3
+        run: pip install acp-cli==0.0.3
 
       - name: Run PR Review
         working-directory: .acp
