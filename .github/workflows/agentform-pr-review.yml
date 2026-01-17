@@ -21,7 +21,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install agentform-cli
-        run: pip install agentform-cli==0.0.3
+        run: pip install agentform-cli
 
       - name: Run PR Review
         working-directory: .agentform
