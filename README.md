@@ -120,8 +120,8 @@ cd .af
 agentform run review_pr \
   --var openai_api_key="$OPENAI_API_KEY" \
   --var github_personal_access_token="$GITHUB_TOKEN" \
-  --var owner="Agentform-org" \
-  --var repo="Agentform-pr-reviewer-example" \
+  --var owner="agentform-org" \
+  --var repo="agentform-pr-reviewer-example" \
   --var pr_number=123
 ```
 
