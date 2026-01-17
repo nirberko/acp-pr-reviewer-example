@@ -80,7 +80,7 @@ In your GitHub repository, add the following secrets (Settings → Secrets and v
 Validate your Agentform specification:
 
 ```bash
-Agentform validate .af/*.af
+agentform validate .af/*.af
 ```
 
 ### 4. Test Locally (Optional)
@@ -90,7 +90,7 @@ You can test the workflow locally before setting up GitHub Actions:
 ```bash
 cd .af
 
-Agentform run review_pr \
+agentform run review_pr \
   --var openai_api_key="your-openai-key" \
   --var github_personal_access_token="your-github-token" \
   --var owner="your-username" \
@@ -131,7 +131,7 @@ Agentform run review_pr \
 
 Edit `.af/06-agents.af` to modify the reviewer's instructions:
 
-```Agentform
+```hcl
 agent "reviewer" {
   model = model.gpt4o
 
@@ -148,7 +148,7 @@ EOF
 
 Modify `.af/05-policies.af` to set budgets and constraints:
 
-```Agentform
+```hcl
 policy "review_policy" {
   budgets { max_cost_usd_per_run = 0.50 }
   budgets { timeout_seconds = 60 }
@@ -181,7 +181,7 @@ async def review_pr(pr_number):
 ```
 
 **Agentform Approach:**
-```Agentform
+```hcl
 workflow "review_pr" {
   step "fetch_pr" { ... }
   step "fetch_files" { ... }
