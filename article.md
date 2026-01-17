@@ -1,30 +1,30 @@
 ---
-title: How I Built an AI-Powered PR Reviewer in 15 Minutes Using ACP
+title: How I Built an AI-Powered PR Reviewer in 15 Minutes Using Agentform
 published: false
-description: Learn how to create an automated AI code reviewer using ACP (Agent as a Code Protocol) - no Python boilerplate needed, just declarative configuration that runs on GitHub Actions.
+description: Learn how to create an automated AI code reviewer using Agentform (Agent as a Code Protocol) - no Python boilerplate needed, just declarative configuration that runs on GitHub Actions.
 tags: ai, github, automation, devops
 cover_image: https://dev-to-uploads.s3.amazonaws.com/uploads/articles/og522g9fhl19wmdcxhy7.png
 # Use a ratio of 100:42 for best results.
 # published_at: 2026-01-16 11:21 +0000
 ---
 
-## How I Built an AI-Powered PR Reviewer in 15 Minutes Using ACP
+## How I Built an AI-Powered PR Reviewer in 15 Minutes Using Agentform
 
 *No Python. No complex orchestration. Just declarative configuration.*
 
 There are plenty of AI-powered PR review tools out there, but I wanted to build my own - partly for more control over the review process, and partly just for fun and to learn a new technology. The challenge? Building one traditionally meant writing a lot of imperative code: managing API calls, handling retries, orchestrating workflows, and dealing with error handling. That's a lot of boilerplate for what should be a simple task.
 
-Using **ACP (Agent as a Code Protocol)**, I built a fully functional AI PR reviewer in just 15 minutes that runs automatically on GitHub Actions. Here's how I did it.
+Using **Agentform (Agent as a Code Protocol)**, I built a fully functional AI PR reviewer in just 15 minutes that runs automatically on GitHub Actions. Here's how I did it.
 
-## What is ACP?
+## What is Agentform?
 
-**ACP (Agent as a Code Protocol)** is Infrastructure as Code for AI agents. Instead of writing imperative Python or JavaScript to manage agent state, retries, and tool wiring, ACP lets you describe your AI agents **declaratively** using a native schema format.
+**Agentform (Agent as a Code Protocol)** is Infrastructure as Code for AI agents. Instead of writing imperative Python or JavaScript to manage agent state, retries, and tool wiring, Agentform lets you describe your AI agents **declaratively** using a native schema format.
 
 Think of it like Terraform, but for AI workflows. You define *what* you want, not *how* to do it.
 
-ACP is an emerging technology currently in active development and early stages, so expect rapid evolution and potential breaking changes. However, it's already powerful enough to build real-world applications like this PR reviewer, and the declarative approach makes it worth exploring even at this stage.
+Agentform is an emerging technology currently in active development and early stages, so expect rapid evolution and potential breaking changes. However, it's already powerful enough to build real-world applications like this PR reviewer, and the declarative approach makes it worth exploring even at this stage.
 
-### Why ACP?
+### Why Agentform?
 
 Traditional approach:
 ```python
@@ -39,7 +39,7 @@ async def review_pr(pr_number):
         # handle errors, retries, etc...
 ```
 
-ACP approach:
+Agentform approach:
 ```hcl
 workflow "review_pr" {
   step "fetch_pr" { ... }
@@ -59,26 +59,26 @@ Clean, readable, and version-controlled.
 - OpenAI API key
 - GitHub Personal Access Token (with `repo` scope)
 
-### Step 1: Install ACP CLI
+### Step 1: Install Agentform CLI
 
 ```bash
-pip install acp-cli
+pip install agentform-cli
 ```
 
 ### Step 2: Create the Project Structure
 
-I organized my ACP configuration into numbered files for clarity:
+I organized my Agentform configuration into numbered files for clarity:
 
 ```
-.acp/
-├── 00-project.acp      # Project metadata
-├── 01-variables.acp    # Input variables
-├── 02-providers.acp    # LLM provider config
-├── 03-servers.acp      # MCP server connections
-├── 04-capabilities.acp # Tool capabilities
-├── 05-policies.acp     # Budgets and limits
-├── 06-agents.acp       # AI agent definitions
-└── 07-workflows.acp    # Workflow orchestration
+.af/
+├── 00-project.af      # Project metadata
+├── 01-variables.af    # Input variables
+├── 02-providers.af    # LLM provider config
+├── 03-servers.af      # MCP server connections
+├── 04-capabilities.af # Tool capabilities
+├── 05-policies.af     # Budgets and limits
+├── 06-agents.af       # AI agent definitions
+└── 07-workflows.af    # Workflow orchestration
 ```
 
 ### Step 3: Define Variables
@@ -86,7 +86,7 @@ I organized my ACP configuration into numbered files for clarity:
 First, I defined what inputs my workflow needs:
 
 ```hcl
-// .acp/01-variables.acp
+// .af/01-variables.af
 
 variable "openai_api_key" {
   type        = string
@@ -121,7 +121,7 @@ variable "pr_number" {
 I set up OpenAI with GPT-4o:
 
 ```hcl
-// .acp/02-providers.acp
+// .af/02-providers.af
 
 provider "llm.openai" "default" {
   api_key = var.openai_api_key
@@ -142,10 +142,10 @@ model "gpt4o" {
 
 ### Step 5: Connect to GitHub via MCP
 
-ACP uses **Model Context Protocol (MCP)** to connect to external services. I configured the GitHub MCP server:
+Agentform uses **Model Context Protocol (MCP)** to connect to external services. I configured the GitHub MCP server:
 
 ```hcl
-// .acp/03-servers.acp
+// .af/03-servers.af
 
 server "github" {
   type      = "mcp"
@@ -162,7 +162,7 @@ server "github" {
 Capabilities are the tools my agent can use. I defined three GitHub operations:
 
 ```hcl
-// .acp/04-capabilities.acp
+// .af/04-capabilities.af
 
 capability "get_pr" {
   server      = server.github
@@ -188,7 +188,7 @@ capability "create_review" {
 I added budget controls to prevent runaway costs:
 
 ```hcl
-// .acp/05-policies.acp
+// .af/05-policies.af
 
 policy "review_policy" {
   budgets { max_cost_usd_per_run = 1.00 }
@@ -202,7 +202,7 @@ policy "review_policy" {
 Now for the fun part - defining the AI agent:
 
 ```hcl
-// .acp/06-agents.acp
+// .af/06-agents.af
 
 agent "reviewer" {
   model = model.gpt4o
@@ -231,7 +231,7 @@ EOF
 Finally, I wired everything together in a workflow:
 
 ```hcl
-// .acp/07-workflows.acp
+// .af/07-workflows.af
 
 workflow "review_pr" {
   entry = step.fetch_pr
@@ -310,7 +310,7 @@ The data flows naturally through `state`, and each step explicitly references th
 To automate this, I created a GitHub Actions workflow:
 
 ```yaml
-# .github/workflows/acp-pr-review.yml
+# .github/workflows/agentform-pr-review.yml
 
 name: PR Review
 
@@ -334,13 +334,13 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install acp-cli
-        run: pip install acp-cli==0.0.3
+      - name: Install agentform-cli
+        run: pip install agentform-cli==0.0.3
 
       - name: Run PR Review
-        working-directory: .acp
+        working-directory: .af
         run: |
-          acp run review_pr \
+          agentform run review_pr \
             --var openai_api_key=${{ secrets.OPENAI_API_KEY }} \
             --var github_personal_access_token=${{ secrets.GITHUB_TOKEN }} \
             --var owner=${{ github.repository_owner }} \
@@ -359,21 +359,21 @@ That's it! Now every PR automatically gets reviewed.
 When a pull request is opened or updated:
 
 1. **GitHub Actions triggers** the workflow
-2. **ACP fetches the PR data** using the GitHub MCP server
-3. **ACP gets the list of changed files**
+2. **Agentform fetches the PR data** using the GitHub MCP server
+3. **Agentform gets the list of changed files**
 4. **The AI agent reviews** the code with access to both PR metadata and file contents
 5. **The review is posted** as a comment on the PR
 
-All orchestration, error handling, and state management is handled by ACP. I just defined the workflow declaratively.
+All orchestration, error handling, and state management is handled by Agentform. I just defined the workflow declaratively.
 
 ## Testing Locally
 
 You can test the workflow locally before pushing:
 
 ```bash
-cd .acp
+cd .af
 
-acp run review_pr \
+agentform run review_pr \
   --var openai_api_key="your-key" \
   --var github_personal_access_token="your-token" \
   --var owner="your-username" \
@@ -384,21 +384,21 @@ acp run review_pr \
 ## What I Love About This Approach
 
 1. **No boilerplate code**: Everything is declarative configuration
-2. **Version controlled**: Agent logic is in `.acp` files, making changes reviewable
-3. **Type safe**: ACP validates the schema before execution
+2. **Version controlled**: Agent logic is in `.af` files, making changes reviewable
+3. **Type safe**: Agentform validates the schema before execution
 4. **Composable**: Agents and workflows can be reused and combined
 5. **Cost controlled**: Built-in budget limits prevent surprises
 6. **Multi-provider**: Easy to switch between OpenAI, Anthropic, etc.
 
 ## Reusability: Using as a Module
 
-One of the coolest features of ACP is that you can package your agent configuration as a reusable module. You can easily import this PR reviewer workflow into your own ACP project using ACP modules - no need to copy files or duplicate configuration!
+One of the coolest features of Agentform is that you can package your agent configuration as a reusable module. You can easily import this PR reviewer workflow into your own Agentform project using Agentform modules - no need to copy files or duplicate configuration!
 
-Just reference it directly from your ACP project:
+Just reference it directly from your Agentform project:
 
 ```hcl
-module "simple-acp-module" {
-  source  = "github.com/nirberko/acp-pr-reviewer-example//.acp"
+module "simple-agentform-module" {
+  source  = "github.com/nirberko/agentform-pr-reviewer-example//.af"
   version = "main"  // Git branch name
   
   // Required parameters - pass through our project variables
@@ -410,11 +410,11 @@ module "simple-acp-module" {
 }
 ```
 
-That's it! ACP modules make it incredibly easy to share and reuse agent configurations across projects or teams, ensuring everyone is using the same, tested workflow.
+That's it! Agentform modules make it incredibly easy to share and reuse agent configurations across projects or teams, ensuring everyone is using the same, tested workflow.
 
 ## Customization
 
-Want to change the review style? Edit the agent instructions in `06-agents.acp`. Need different budget limits? Update `05-policies.acp`. Want to use a different model? Modify `02-providers.acp`.
+Want to change the review style? Edit the agent instructions in `06-agents.af`. Need different budget limits? Update `05-policies.af`. Want to use a different model? Modify `02-providers.af`.
 
 All changes are in configuration files - no code changes needed.
 
@@ -437,10 +437,10 @@ You can extend this further:
 
 ## Resources
 
-- [ACP GitHub Repository](https://github.com/acp-org/acp)
+- [Agentform GitHub Repository](https://github.com/agentform-org/agentform)
 - [Model Context Protocol](https://modelcontextprotocol.io/)
-- [Example Repository](https://github.com/nirberko/acp-pr-reviewer-example)
+- [Example Repository](https://github.com/nirberko/agentform-pr-reviewer-example)
 
 ---
 
-**Have you tried ACP? What AI workflows would you build with it?** Let me know in the comments! 🚀
+**Have you tried Agentform? What AI workflows would you build with it?** Let me know in the comments! 🚀
