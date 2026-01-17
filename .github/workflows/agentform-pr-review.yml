@@ -24,7 +24,7 @@ jobs:
         run: pip install agentform-cli
 
       - name: Run PR Review
-        working-directory: .agentform
+        working-directory: agentform-example
         run: |
           agentform run review_pr \
             --var openai_api_key=${{ secrets.OPENAI_API_KEY }} \
