@@ -1,9 +1,9 @@
 ---
 title: How I Built an AI-Powered PR Reviewer in 15 Minutes Using Agentform
 published: false
-description: Learn how to create an automated AI code reviewer using Agentform (Agent as a Code Protocol) - no Python boilerplate needed, just declarative configuration that runs on GitHub Actions.
+description: Learn how to create an automated AI code reviewer using Agentform - no Python boilerplate needed, just declarative configuration that runs on GitHub Actions.
 tags: ai, github, automation, devops
-cover_image: https://dev-to-uploads.s3.amazonaws.com/uploads/articles/og522g9fhl19wmdcxhy7.png
+cover_image: https://dev-to-uploads.s3.amazonaws.com/uploads/articles/rtonq1jjk1yge0qgfu8w.png
 # Use a ratio of 100:42 for best results.
 # published_at: 2026-01-16 11:21 +0000
 ---
@@ -14,11 +14,11 @@ cover_image: https://dev-to-uploads.s3.amazonaws.com/uploads/articles/og522g9fhl
 
 There are plenty of AI-powered PR review tools out there, but I wanted to build my own - partly for more control over the review process, and partly just for fun and to learn a new technology. The challenge? Building one traditionally meant writing a lot of imperative code: managing API calls, handling retries, orchestrating workflows, and dealing with error handling. That's a lot of boilerplate for what should be a simple task.
 
-Using **Agentform (Agent as a Code Protocol)**, I built a fully functional AI PR reviewer in just 15 minutes that runs automatically on GitHub Actions. Here's how I did it.
+Using **Agentform**, I built a fully functional AI PR reviewer in just 15 minutes that runs automatically on GitHub Actions. Here's how I did it.
 
 ## What is Agentform?
 
-**Agentform (Agent as a Code Protocol)** is Infrastructure as Code for AI agents. Instead of writing imperative Python or JavaScript to manage agent state, retries, and tool wiring, Agentform lets you describe your AI agents **declaratively** using a native schema format.
+**Agentform** is Infrastructure as Code for AI agents. Instead of writing imperative Python or JavaScript to manage agent state, retries, and tool wiring, Agentform lets you describe your AI agents **declaratively** using a native schema format.
 
 Think of it like Terraform, but for AI workflows. You define *what* you want, not *how* to do it.
 
