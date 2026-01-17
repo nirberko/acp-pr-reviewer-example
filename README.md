@@ -1,90 +1,217 @@
-# Project Name
+# Agentform PR Reviewer Example
 
-A brief description of what this project does and why it exists.
+An example project demonstrating how to use [Agentform (Agent as a Code Protocol)](https://github.com/Agentform-org/Agentform) to create an AI-powered pull request reviewer that automatically reviews code changes using GitHub Actions.
 
-## Features
+## What is Agentform?
 
-- Feature 1
-- Feature 2
-- Feature 3
+**Agentform (Agent as a Code Protocol)** is an Infrastructure as Code approach for AI agents. Instead of writing imperative code to manage agent state, retries, and tool wiring, Agentform lets you describe your AI agents declaratively using a native schema format.
 
-## Installation
+Agentform provides:
+- **Native Schema**: Type-safe `.af` format with explicit references
+- **Multi-Provider Support**: Use OpenAI, Anthropic, or other LLM providers
+- **MCP Integration**: Connect to external tools via Model Context Protocol servers
+- **Policy Enforcement**: Set budgets, timeouts, and capability limits per agent
+- **Workflow Orchestration**: Coordinate multi-step agent workflows with conditional routing
 
-### Prerequisites
+Learn more about Agentform at: https://github.com/Agentform-org/Agentform
 
-- Node.js (version X.X.X or higher)
-- npm or yarn
+## About This Repository
 
-### Setup
+This repository demonstrates a practical use case of Agentform: **automated PR reviews using AI agents**. The example includes:
+
+- A complete Agentform specification defining an AI code reviewer agent
+- Integration with GitHub's MCP server for accessing PR data
+- A GitHub Actions workflow that automatically runs reviews on pull requests
+- A multi-step workflow that fetches PR data, analyzes code, and submits reviews
+
+## How It Works
+
+The PR reviewer workflow consists of four steps:
+
+1. **Fetch PR Data**: Retrieves the pull request information using GitHub MCP capabilities
+2. **Fetch PR Files**: Gets the list of changed files in the pull request
+3. **Analyze**: Uses an AI agent (GPT-4o) to review the code changes and provide feedback
+4. **Submit Review**: Posts the AI-generated review as a comment on the pull request
+
+All of this is defined declaratively in `.af` files, making it easy to version control, review, and modify the agent configuration.
+
+## Project Structure
+
+```
+.af/
+├── 00-project.af      # Project metadata and version
+├── 01-variables.af    # Variable definitions (API keys, tokens)
+├── 02-providers.af    # LLM provider configurations
+├── 03-servers.af      # MCP server connections (GitHub)
+├── 04-capabilities.af # Capability definitions for GitHub operations
+├── 05-policies.af     # Budget and policy constraints
+├── 06-agents.af       # AI agent definitions (reviewer)
+└── 07-workflows.af    # Workflow definitions (review_pr)
+
+.github/
+└── workflows/
+    └── Agentform-pr-review.yml  # GitHub Actions workflow
+```
+
+## Prerequisites
+
+- Python 3.12 or higher
+- GitHub repository with Actions enabled
+- OpenAI API key
+- GitHub Personal Access Token (with `repo` scope for PR access)
+
+## Setup
+
+### 1. Install Agentform CLI
 
 ```bash
-# Clone the repository
-git clone https://github.com/username/project-name.git
+pip install Agentform-cli
+```
 
-# Navigate to the project directory
-cd project-name
+### 2. Configure Secrets
 
-# Install dependencies
-npm install
+In your GitHub repository, add the following secrets (Settings → Secrets and variables → Actions):
+
+- `OPENAI_API_KEY`: Your OpenAI API key
+- `GITHUB_TOKEN`: Automatically provided by GitHub Actions (or use a PAT with `repo` scope)
+
+### 3. Verify Agentform Configuration
+
+Validate your Agentform specification:
+
+```bash
+Agentform validate .af/*.af
+```
+
+### 4. Test Locally (Optional)
+
+You can test the workflow locally before setting up GitHub Actions:
+
+```bash
+cd .af
+
+Agentform run review_pr \
+  --var openai_api_key="your-openai-key" \
+  --var github_personal_access_token="your-github-token" \
+  --var owner="your-username" \
+  --var repo="your-repo" \
+  --var pr_number=1
 ```
 
 ## Usage
 
-### Basic Usage
+### Automatic Reviews via GitHub Actions
+
+Once set up, the PR reviewer will automatically run when:
+
+- A new pull request is opened
+- A pull request is synchronized (new commits pushed)
+- A pull request is reopened
+
+The workflow runs automatically via the GitHub Actions configuration in `.github/workflows/Agentform-pr-review.yml`.
+
+### Manual Execution
+
+You can also run the reviewer manually from the command line:
 
 ```bash
-npm start
-```
+cd .af
 
-### Advanced Usage
-
-```bash
-npm run build
-npm test
+Agentform run review_pr \
+  --var openai_api_key="$OPENAI_API_KEY" \
+  --var github_personal_access_token="$GITHUB_TOKEN" \
+  --var owner="Agentform-org" \
+  --var repo="Agentform-pr-reviewer-example" \
+  --var pr_number=123
 ```
 
 ## Configuration
 
-Create a `.env` file in the root directory:
+### Customizing the Reviewer
 
-```env
-API_KEY=your_api_key_here
-PORT=3000
+Edit `.af/06-agents.af` to modify the reviewer's instructions:
+
+```Agentform
+agent "reviewer" {
+  model = model.gpt4o
+
+  instructions = <<EOF
+Your custom review instructions here...
+EOF
+
+  allow  = [capability.get_pr, capability.list_pr_files, capability.create_review]
+  policy = policy.review_policy
+}
 ```
 
-## Development
+### Adjusting Policies
 
-### Running Tests
+Modify `.af/05-policies.af` to set budgets and constraints:
 
-```bash
-npm test
+```Agentform
+policy "review_policy" {
+  budgets { max_cost_usd_per_run = 0.50 }
+  budgets { timeout_seconds = 60 }
+}
 ```
 
-### Building for Production
+### Changing Models
 
-```bash
-npm run build
+Update `.af/02-providers.af` to use different LLM models or providers.
+
+## Features
+
+- 🤖 **AI-Powered Reviews**: Uses GPT-4o to provide intelligent code feedback
+- 🔗 **GitHub Integration**: Seamlessly connects to GitHub via MCP
+- ⚙️ **Declarative Configuration**: All agent logic defined in readable `.af` files
+- 🔄 **Automated Workflow**: Runs automatically on PR events via GitHub Actions
+- 💰 **Cost Controls**: Built-in budget limits and policy enforcement
+- 📊 **Version Controlled**: Agent configurations are code, making changes reviewable
+
+## How Agentform Differs from Traditional Approaches
+
+**Traditional Approach:**
+```python
+# Imperative code managing state, retries, error handling...
+async def review_pr(pr_number):
+    pr = await fetch_pr(pr_number)
+    files = await fetch_files(pr_number)
+    review = await llm.review(code=files)
+    await post_review(pr_number, review)
 ```
+
+**Agentform Approach:**
+```Agentform
+workflow "review_pr" {
+  step "fetch_pr" { ... }
+  step "fetch_files" { ... }
+  step "analyze" { agent = agent.reviewer }
+  step "submit_review" { ... }
+}
+```
+
+The Agentform approach provides:
+- **Type Safety**: Schema validation catches errors early
+- **Reusability**: Agents and workflows are composable
+- **Visibility**: Clear data flow through explicit references
+- **Maintainability**: Configuration changes don't require code changes
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! This is an example repository demonstrating Agentform capabilities. Feel free to:
 
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+- Improve the review quality and prompts
+- Add support for more review criteria
+- Extend the workflow with additional steps
+- Add examples of other Agentform patterns
+
+## Resources
+
+- [Agentform Documentation](https://github.com/Agentform-org/Agentform)
+- [Agentform Schema Reference](https://github.com/Agentform-org/Agentform)
+- [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)
 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Authors
-
-- Your Name - [@yourusername](https://github.com/yourusername)
-
-## Acknowledgments
-
-- Thanks to everyone who has contributed to this project
-- Inspiration from [other project](https://example.com)

@@ -20,13 +20,13 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install acp-cli
-        run: pip install acp-cli
+      - name: Install agentform-cli
+        run: pip install agentform-cli
 
       - name: Run PR Review
-        working-directory: .acp
+        working-directory: agentform-example
         run: |
-          acp run review_pr \
+          agentform run review_pr \
             --var openai_api_key=${{ secrets.OPENAI_API_KEY }} \
             --var github_personal_access_token=${{ secrets.GITHUB_TOKEN }} \
             --var owner=${{ github.repository_owner }} \
