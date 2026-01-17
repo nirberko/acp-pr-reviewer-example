@@ -117,7 +117,7 @@ You can also run the reviewer manually from the command line:
 ```bash
 cd .af
 
-Agentform run review_pr \
+agentform run review_pr \
   --var openai_api_key="$OPENAI_API_KEY" \
   --var github_personal_access_token="$GITHUB_TOKEN" \
   --var owner="Agentform-org" \
